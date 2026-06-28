@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>سلامتك - تطبيق الهاتف المحمول</title>
+    <meta name="description" content="تطبيق سلامتك للهاتف المحمول - نظام المتابعة الطبية">
+    
+    <!-- Force mobile user agent detection -->
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            margin: 0;
+            padding: 20px;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            text-align: center;
+        }
+        
+        .container {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            max-width: 400px;
+            width: 100%;
+        }
+        
+        .logo {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+        
+        .subtitle {
+            font-size: 1.1rem;
+            margin-bottom: 30px;
+            opacity: 0.9;
+        }
+        
+        .btn {
+            background: #030213;
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            font-weight: bold;
+            width: 100%;
+            margin: 10px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            box-sizing: border-box;
+        }
+        
+        .btn:hover {
+            background: #1a1a2e;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .device-info {
+            margin-top: 20px;
+            font-size: 0.9rem;
+            opacity: 0.8;
+        }
+        
+        .spinner {
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top: 3px solid white;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            animation: spin 1s linear infinite;
+            margin: 20px auto;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="logo">📱 سلامتك</div>
+        <div class="subtitle">تطبيق المتابعة الطبية للهاتف المحمول</div>
+        
+        <div id="loading" style="display: none;">
+            <div class="spinner"></div>
+            <p>جار تحميل التطبيق...</p>
+        </div>
+        
+        <div id="content">
+            <a href="/" class="btn" onclick="openApp()">
+                🚀 فتح التطبيق للهاتف
+            </a>
+            
+            <div class="device-info">
+                <p>هذا الرابط محسن خصيصاً للهواتف المحمولة</p>
+                <p id="device-type"></p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Force mobile viewport and experience
+        function setupMobileExperience() {
+            // Set mobile viewport
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            }
+            
+            // Add mobile class to body
+            document.body.classList.add('mobile-force');
+            
+            // Detect device
+            const userAgent = navigator.userAgent.toLowerCase();
+            const deviceInfo = document.getElementById('device-type');
+            
+            if (/iphone|ipod/.test(userAgent)) {
+                deviceInfo.textContent = 'تم اكتشاف جهاز iPhone';
+            } else if (/ipad/.test(userAgent)) {
+                deviceInfo.textContent = 'تم اكتشاف جهاز iPad';
+            } else if (/android/.test(userAgent)) {
+                deviceInfo.textContent = 'تم اكتشاف جهاز Android';
+            } else {
+                deviceInfo.textContent = 'جهاز محمول';
+            }
+        }
+        
+        function openApp() {
+            document.getElementById('loading').style.display = 'block';
+            document.getElementById('content').style.display = 'none';
+            
+            // Force mobile parameters
+            const mobileParams = new URLSearchParams({
+                'mobile': 'true',
+                'force-mobile': '1',
+                'device': 'mobile',
+                'view': 'mobile'
+            });
+            
+            // Redirect to main app with mobile parameters
+            setTimeout(() => {
+                window.location.href = '/?' + mobileParams.toString();
+            }, 1000);
+        }
+        
+        // Auto-detect and setup mobile experience
+        setupMobileExperience();
+        
+        // Prevent zoom on double tap
+        let lastTouchEnd = 0;
+        document.addEventListener('touchend', function (event) {
+            const now = (new Date()).getTime();
+            if (now - lastTouchEnd <= 300) {
+                event.preventDefault();
+            }
+            lastTouchEnd = now;
+        }, false);
+        
+        // Auto-redirect if already on mobile
+        if (window.innerWidth <= 768 && window.location.search.includes('auto=true')) {
+            openApp();
+        }
+    </script>
+</body>
+</html>

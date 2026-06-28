@@ -1,0 +1,4 @@
+import { ArrowLeft, ArrowRight, HeartPulse, Stethoscope, UserRound } from "lucide-react";
+import { useApp } from "../contexts/AppContext";
+interface Props{title:string;userType:"doctor"|"patient";userName:string;onBack:()=>void}
+export function SubPageHeader({title,userType,userName,onBack}:Props){const{language,dir}=useApp();const ar=language==="ar";const Arrow=ar?ArrowRight:ArrowLeft;const Role=userType==="doctor"?Stethoscope:UserRound;return <header className="subpage-header" dir={dir}><div className="subpage-header__inner"><button className="subpage-back" onClick={onBack}><Arrow/><span>{ar?"العودة":"Back"}</span></button><div className="subpage-title"><span><HeartPulse/></span><div><small>{ar?"سلامتك":"Salamtak"}</small><h1>{title}</h1></div></div><div className="subpage-user"><span>{userName.slice(0,1)}</span><div><b>{userName}</b><small><Role/>{userType==="doctor"?(ar?"حساب طبيب":"Doctor"):(ar?"حساب مريض":"Patient")}</small></div></div></div></header>}

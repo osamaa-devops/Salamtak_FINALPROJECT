@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+
+# Sitemaps
+Sitemap: /sitemap.xml
+
+# Disallow service worker and manifest files from being indexed
+Disallow: /sw.js
+Disallow: /manifest.json
+Disallow: /browserconfig.xml
+
+# Allow important pages
+Allow: /
+Allow: /manifest.json

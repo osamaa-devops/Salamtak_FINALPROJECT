@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>سلامتك - نظام المتابعة الطبية</title>
+    <meta name="description" content="تطبيق شامل للرعاية الصحية يربط بين الأطباء والمرضى بطريقة آمنة وفعالة">
+    
+    <!-- PWA Meta Tags -->
+    <meta name="theme-color" content="#030213">
+    <meta name="msapplication-TileColor" content="#030213">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="سلامتك">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="سلامتك">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Apple Touch Icons -->
+    <link rel="apple-touch-icon" sizes="152x152" href="/icons/icon-152x152.png">
+    <link rel="apple-touch-icon" sizes="192x192" href="/icons/icon-192x192.png">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/icon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/icon-16x16.png">
+    <link rel="shortcut icon" href="/favicon.ico">
+    
+    <!-- Microsoft Tiles -->
+    <meta name="msapplication-TileImage" content="/icons/icon-144x144.png">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- SEO and Social -->
+    <meta name="keywords" content="طبيب, مريض, استشارة, دواء, موعد, صحة, طب, عيادة">
+    <meta name="author" content="فريق سلامتك">
+    <meta property="og:title" content="سلامتك - نظام المتابعة الطبية">
+    <meta property="og:description" content="تطبيق شامل للرعاية الصحية يربط بين الأطباء والمرضى">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="/icons/icon-512x512.png">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="سلامتك - نظام المتابعة الطبية">
+    <meta name="twitter:description" content="تطبيق شامل للرعاية الصحية يربط بين الأطباء والمرضى">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body {
+            font-family: 'Cairo', system-ui, -apple-system, sans-serif;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            touch-action: manipulation;
+        }
+        
+        * {
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        /* Prevent zoom on input focus in iOS Safari */
+        input[type="text"],
+        input[type="email"],
+        input[type="password"],
+        input[type="number"],
+        textarea,
+        select {
+            font-size: 16px !important;
+        }
+        
+        /* Better touch targets */
+        button, 
+        [role="button"], 
+        input[type="submit"], 
+        input[type="button"] {
+            min-height: 44px;
+            min-width: 44px;
+        }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+    
+    <!-- PWA Install Banner -->
+    <div id="pwa-install-banner" style="display: none; position: fixed; bottom: 0; left: 0; right: 0; background: #030213; color: white; padding: 16px; text-align: center; z-index: 1000;">
+        <p style="margin: 0 0 8px 0; font-family: 'Cairo', sans-serif;">أضف سلامتك إلى الشاشة الرئيسية لتجربة أفضل</p>
+        <button id="install-button" style="background: white; color: #030213; border: none; padding: 8px 16px; border-radius: 4px; font-family: 'Cairo', sans-serif; margin-left: 8px;">تثبيت التطبيق</button>
+        <button id="dismiss-button" style="background: transparent; color: white; border: 1px solid white; padding: 8px 16px; border-radius: 4px; font-family: 'Cairo', sans-serif;">لاحقاً</button>
+    </div>
+
+    <script>
+        // Mobile-First Setup
+        function initializeMobileApp() {
+            // Force mobile viewport
+            const viewport = document.querySelector('meta[name="viewport"]');
+            if (viewport) {
+                viewport.content = 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover';
+            }
+            
+            // Detect device type
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
+            
+            // Add device classes
+            if (isMobile) {
+                document.body.classList.add('mobile-device');
+            } else if (isTablet) {
+                document.body.classList.add('tablet-device');
+            }
+            
+            // Prevent zoom on double tap for mobile
+            if (isMobile) {
+                let lastTouchEnd = 0;
+                document.addEventListener('touchend', function (event) {
+                    const now = (new Date()).getTime();
+                    if (now - lastTouchEnd <= 300) {
+                        event.preventDefault();
+                    }
+                    lastTouchEnd = now;
+                }, false);
+            }
+        }
+
+        // Register Service Worker
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js')
+                    .catch(function() {});
+            });
+        }
+
+        // Enhanced PWA Install Banner for Mobile
+        let deferredPrompt;
+        const installBanner = document.getElementById('pwa-install-banner');
+        const installButton = document.getElementById('install-button');
+        const dismissButton = document.getElementById('dismiss-button');
+
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            
+            // Only show on mobile devices
+            const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent) || window.innerWidth <= 768;
+            if (isMobile) {
+                installBanner.style.display = 'block';
+            }
+        });
+
+        installButton.addEventListener('click', async () => {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                await deferredPrompt.userChoice;
+                deferredPrompt = null;
+                installBanner.style.display = 'none';
+            }
+        });
+
+        dismissButton.addEventListener('click', () => {
+            installBanner.style.display = 'none';
+        });
+
+        window.addEventListener('appinstalled', () => {
+            installBanner.style.display = 'none';
+        });
+
+        // Initialize mobile optimizations
+        initializeMobileApp();
+        
+        // Handle orientation change
+        window.addEventListener('orientationchange', function() {
+            setTimeout(function() {
+                initializeMobileApp();
+            }, 100);
+        });
+    </script>
+</body>
+</html>
