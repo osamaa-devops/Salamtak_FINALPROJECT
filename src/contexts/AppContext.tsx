@@ -32,12 +32,12 @@ export const AppProvider: React.FC<AppProviderProps> = ({ children }) => {
   // Load from localStorage or default to Arabic
   const [language, setLanguageState] = useState<Language>(() => {
     const saved = localStorage.getItem('app-language');
-    return (saved as Language) || 'ar';
+    return saved === 'ar' || saved === 'en' ? saved : 'ar';
   });
 
   const [theme, setThemeState] = useState<Theme>(() => {
     const saved = localStorage.getItem('app-theme');
-    return (saved as Theme) || 'light';
+    return saved === 'light' || saved === 'dark' ? saved : 'light';
   });
 
   // Save to localStorage and apply theme class

@@ -19,7 +19,9 @@ export function applySecurity(app) {
   app.use(
     cors({
       origin(origin, callback) {
-        if (!origin || allowedOrigins.has(origin)) {
+        const isRenderOrigin = /^https:\/\/[a-z0-9-]+\.onrender\.com$/i.test(origin || "");
+
+        if (!origin || allowedOrigins.has(origin) || isRenderOrigin) {
           callback(null, true);
           return;
         }

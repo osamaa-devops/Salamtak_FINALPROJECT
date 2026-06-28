@@ -31,7 +31,14 @@ export function getToken() {
 
 export function getStoredUser(): ApiUser | null {
   const raw = localStorage.getItem(USER_KEY);
-  return raw ? JSON.parse(raw) : null;
+  if (!raw) return null;
+
+  try {
+    return JSON.parse(raw) as ApiUser;
+  } catch {
+    clearAuthSession();
+    return null;
+  }
 }
 
 export function updateStoredUser(user: ApiUser) {
